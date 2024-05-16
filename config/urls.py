@@ -19,7 +19,7 @@ from django.urls import include, path
 from django.views import debug
 
 urlpatterns = [
-    path("", debug.default_urlconf),  # 環境構築ができたら消す
+    path('', include('schedule.urls')),
     path("admin/", admin.site.urls),
 ]
 
