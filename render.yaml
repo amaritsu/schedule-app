@@ -1,5 +1,3 @@
-previewsEnabled: true
-previewsExpireAfterDays: 3
 databases:
   - name: schedule_app_db
     region: singapore
