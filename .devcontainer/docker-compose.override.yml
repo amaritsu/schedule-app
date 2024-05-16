@@ -1,0 +1,12 @@
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: dockerfiles/devcontainer/Dockerfile
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    tty: true
+    # Reset ports to empty list, in order to avoid exposing ports in codespaces
+    # https://docs.docker.com/compose/compose-file/13-merge/#reset-value
+    # The `!reset` tag seems to be unavailable in the codespaces environment,
+    # so we delete the ports key in init.sh instead.
+    # ports: !reset []

@@ -1,0 +1,78 @@
+version: 2.1
+executors:
+  test:
+    working_directory: ~/workspace
+    docker:
+      - image: cimg/python:3.11
+        environment:
+          PYTHONUNBUFFERED: 1
+          TZ: Asia/Tokyo
+      - image: cimg/postgres:15.2
+        environment:
+          POSTGRES_USER: circleci
+          POSTGRES_DB: circle_test
+          POSTGRES_HOST_AUTH_METHOD: trust
+  lint:
+    working_directory: ~/workspace
+    docker:
+      - image: cimg/python:3.11
+        environment:
+          PYTHONUNBUFFERED: 1
+          TZ: Asia/Tokyo
+
+jobs:
+  lint:
+    executor: lint
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - poetry-packages-v1-{{ checksum "poetry.lock" }}
+            - poetry-packages-v1-
+      - run:
+          name: install requirements
+          command: poetry install --no-ansi --no-root
+      - save_cache:
+          paths:
+            - ~/.cache/pypoetry/virtualenvs
+          key: poetry-packages-v1-{{ checksum "poetry.lock" }}
+      - run:
+          name: lint with black
+          command: poetry run black . --check
+      - run:
+          name: lint with ruff
+          command: poetry run ruff check .
+      - run:
+          name: lint with djLint
+          command: |
+            poetry run djlint . --check
+            poetry run djlint . --lint
+
+  test:
+    executor: test
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - poetry-packages-v1-{{ checksum "poetry.lock" }}
+            - poetry-packages-v1-
+      - run:
+          name: install requirements
+          command: poetry install --no-ansi --no-root
+      - save_cache:
+          paths:
+            - ~/.cache/pypoetry/virtualenvs
+          key: poetry-packages-v1-{{ checksum "poetry.lock" }}
+      - run:
+          name: migrate
+          command: poetry run python manage.py migrate --verbosity 2 --settings config.settings.circleci
+      - run:
+          name: test
+          command: poetry run python manage.py test --verbosity 2 --settings config.settings.circleci
+
+workflows:
+  version: 2
+  lint_and_test:
+    jobs:
+      - lint
+      - test

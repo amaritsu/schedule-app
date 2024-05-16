@@ -1,0 +1,86 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
+{
+	"name": "six1_template devcontainer",
+	// Combine the service definitions of the main docker-compose.yml file and the
+	// devcontainer-specific docker-compose.yml file.
+	// Need to manually combine the files because VSCode doesn't support the `!reset` tag.
+	// https://github.com/microsoft/vscode-remote-release/issues/8734#issuecomment-1680564935
+  	"initializeCommand": ".devcontainer/init.sh",
+	"dockerComposeFile": [
+		"../.docker-compose.no-ports.yml",
+		"docker-compose.override.yml"
+	],
+	// The 'service' property is the name of the service for the container that VS Code should
+	// use. Update this value and .devcontainer/docker-compose.yml if you need.
+	"service": "web",
+	// The optional 'workspaceFolder' property is the path VS Code should open by default when
+	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
+	"workspaceFolder": "/code",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		8000
+	],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "poetry install",
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": {
+				// Python
+				"python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+				"python.terminal.activateEnvInCurrentTerminal": true,
+				"[python]": {
+					//// black
+					"editor.formatOnSave": true,
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					//// isort
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": true
+					}
+				},
+				//// autoDocstring
+				"autoDocstring.docstringFormat": "numpy",
+				// HTML
+				//// djLint
+				"[html][django-html][css][javascript]": {
+					"editor.formatOnSave": true,
+					"editor.defaultFormatter": "monosans.djlint"
+				},
+				//// Emmet
+				"emmet.includeLanguages": {
+					"django-html": "html"
+				},
+				// Others
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.enablePersistentSessions": false,
+				"files.exclude": {
+					"**/.ruff_cache": true,
+					"**/.venv": true,
+					".docker-compose.no-ports.yml": true
+				}
+			},
+			"extensions": [
+				// General
+				"mosapride.zenkaku",
+				"streetsidesoftware.code-spell-checker",
+				"ms-vsliveshare.vsliveshare",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"GitHub.copilot",
+				// Python
+				"ms-python.black-formatter",
+				"charliermarsh.ruff",
+				"batisteo.vscode-django",
+				"njpwerner.autodocstring",
+				"ninoseki.vscode-pylens",
+				"monosans.djlint",
+				// Others
+				"tamasfe.even-better-toml"
+			]
+		}
+	}
+}

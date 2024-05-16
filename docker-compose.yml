@@ -1,0 +1,28 @@
+# dbとwebサービスの立ち上げ
+services:
+  # dbはPostgreSQLを使う
+  db:
+    platform: linux/x86_64  # M1 Macなどで必要
+    image: postgres:16
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # データベースの中身を残す
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+
+  web:
+    build: 
+      context: .
+      dockerfile: dockerfiles/local/Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.local
+    volumes:
+      - .:/code:cached  # ソースコードを管理するフォルダ
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db  # dbを起動してからwebを起動する
+
+volumes:
+  postgres_data:
